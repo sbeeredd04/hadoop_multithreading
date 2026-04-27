@@ -7,7 +7,7 @@ from pathlib import Path
 
 # NameNode: splits the data file into N subsets, one for each TaskTracker
 def name_node(file_path, num_splits):
-   
+    """Split the data file into N line subsets, one per TaskTracker."""
     # Read every line from the input file
     with open(file_path, "r", encoding="utf-8") as f:
         all_lines = f.readlines()
@@ -35,7 +35,7 @@ def name_node(file_path, num_splits):
 
 # Map function: converts a subset of text into <word, 1> key-value pairs
 def map_function(lines):
-
+    """Convert lines of text into a list of (word, 1) key-value pairs."""
     pairs = []
     for line in lines:
         # Lower-case the line so the count is case-insensitive
@@ -50,7 +50,7 @@ def map_function(lines):
 
 # Reduce function to sum the 1s for every word in its subset
 def reduce_function(pairs):
-
+    """Sum the counts for each word and return a {word: count} dict."""
     counts = {}
     for word, value in pairs:
         if word in counts:
@@ -63,7 +63,7 @@ def reduce_function(pairs):
 
 # TaskTracker to run Map then Reduce on its subset and store the result
 def task_tracker(task_id, lines, results, lock):
-
+    """Run Map then Reduce on one subset and store the partial result."""
     print(f"  TaskTracker-{task_id} started ({len(lines)} lines)")
 
     #Map (text -> key-value pairs)
@@ -82,7 +82,7 @@ def task_tracker(task_id, lines, results, lock):
 
 # Combiner merges the partial results from all reducers into one result 
 def combiner(partial_results):
-
+    """Merge all per-reducer dicts into one final {word: count} dict."""
     final_counts = {}
     for partial in partial_results:
         for word, count in partial.items():
@@ -95,7 +95,7 @@ def combiner(partial_results):
 
 # Single-threaded run (used to compare execution times)
 def run_single_thread(file_path, num_splits):
-
+    """Run the whole MapReduce job on one thread and time it."""
     print("\n--- Single-thread run ---")
     start_time = time.time()
 
@@ -121,7 +121,7 @@ def run_single_thread(file_path, num_splits):
 
 # Multi-threaded run
 def run_multi_thread(file_path, num_splits):
-
+    """Run the MapReduce job using N parallel threads and time it."""
     print("\n--- Multi-thread run ---")
     start_time = time.time()
 
@@ -157,7 +157,7 @@ def run_multi_thread(file_path, num_splits):
 
 # Simple console UI
 def get_user_input():
-
+    """Ask the user for the data file path and the thread count N."""
     print(f"=" * 60)
     print(" Word Count MapReduce (Python multithreading)")
     print(f"=" * 60)
@@ -191,7 +191,7 @@ def get_user_input():
 
 
 def display_results(final_counts, single_time, multi_time, num_threads):
-
+    """Print the top words plus timings and save the full result as JSON."""
     print("\n" + f"=" * 60)
     print(" Results")
     print(f"=" * 60)
@@ -221,7 +221,6 @@ def display_results(final_counts, single_time, multi_time, num_threads):
     print(f"\nFull JSON result saved to: {output_path}")
 
 
-# Program entry point
 def main():
     file_path, num_threads = get_user_input()
     if file_path is None:
